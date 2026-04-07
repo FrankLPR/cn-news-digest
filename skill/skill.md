@@ -3,7 +3,7 @@ name: news-digest
 description: Fetch and summarize hot investment news from Chinese financial sources (华尔街见闻, 新浪财经, 雪球, 腾讯财经)
 ---
 
-Fetch the latest investment news and provide a two-layer summary.
+Fetch the latest investment news and produce a daily digest.
 
 ## Steps
 
@@ -15,35 +15,37 @@ cd <skill-directory>/..
 pip install -e . 2>/dev/null
 
 # Fetch news as JSON
-cn-news-digest --json {{#if args}}--keywords "{{args}}"{{/if}}
+cn-news-digest --json --hours 24 --top 30 {{#if args}}--keywords "{{args}}"{{/if}}
 ```
 
-2. Analyze the JSON output and produce a two-layer summary in Chinese:
+2. Analyze the JSON output and produce a two-layer digest in Chinese:
 
-**Layer 1: 今日投资要闻** (5-8 条)
-- Merge coverage of the same event across different sources
-- Rank by market impact and importance
-- Each item: one-line headline + 1-2 sentence explanation of why it matters
-- Flag if sources have divergent views on the same event
+**Layer 1: 核心事件** (5-8 条)
+- Merge same event across sources into one entry
+- Rank by market impact
+- Each item: **bold headline** + one sentence why it matters + key data points
+- NO links in this section
+- Keep it tight: headline should be under 25 chars, explanation under 80 chars
 
-**Layer 2: 各源热点详情**
-- Group by source (华尔街见闻 → 新浪财经 → 雪球 → 腾讯财经)
-- For each source, list top articles with title, key takeaway, and link
-- Note overall sentiment per source (偏多/偏空/中性)
+**Layer 2: 各源详情**
+- Group by source: 华尔街见闻 → 新浪财经 → 雪球 → 腾讯财经
+- Each source: top articles as bullet list with title, one-line takeaway, [link](url), metrics
+- End each source section with one-line sentiment tag (偏多/偏空/中性)
 
 ## Output Format
 
 ```markdown
-# 📰 投资要闻 (过去12小时)
+# 投资要闻 (YYYY-MM-DD)
 
 ## 核心事件
 
-1. **事件标题** — 为什么重要，市场影响
+1. **事件标题** — 一句话影响 + 关键数据
 2. ...
 
 ## 华尔街见闻
-- **标题** — 要点 [链接](url)
+- **标题** — 要点 [链接](url) 👀 阅读量
 - ...
+- 整体偏X，一句话总结
 
 ## 新浪财经
 ...
