@@ -6,7 +6,7 @@ from email.utils import parsedate_to_datetime
 
 import httpx
 
-from cn_news_digest.models import Article
+from cn_news_digest.models import Article, CST
 from cn_news_digest.rsshub import RSSHubClient
 from cn_news_digest.sources.base import BaseSource
 
@@ -39,7 +39,7 @@ class WallStreetCNSource(BaseSource):
         if not entries:
             return []
 
-        cutoff = datetime.now(timezone.utc) - timedelta(hours=hours)
+        cutoff = datetime.now(CST) - timedelta(hours=hours)
         articles = []
         for entry in entries:
             pub_date = self._parse_rss_date(entry.get("published", ""))
@@ -51,7 +51,7 @@ class WallStreetCNSource(BaseSource):
                     summary=self._clean_summary(entry.get("summary", "")),
                     url=entry.get("link", ""),
                     source=self.name,
-                    published_at=pub_date or datetime.now(timezone.utc),
+                    published_at=pub_date or datetime.now(CST),
                     metrics={},
                     tags=[],
                 )
@@ -59,7 +59,7 @@ class WallStreetCNSource(BaseSource):
         return articles
 
     async def _fetch_direct(self, hours: int, top_n: int) -> list[Article]:
-        cutoff = datetime.now(timezone.utc) - timedelta(hours=hours)
+        cutoff = datetime.now(CST) - timedelta(hours=hours)
         articles: list[Article] = []
 
         async with httpx.AsyncClient(timeout=TIMEOUT) as client:
@@ -92,7 +92,7 @@ class WallStreetCNSource(BaseSource):
         articles = []
         for item in data.get("data", {}).get("day_items", []):
             pub_date = datetime.fromtimestamp(
-                item.get("display_time", 0), tz=timezone.utc
+                item.get("display_time", 0), tz=CST
             )
             if pub_date < cutoff:
                 continue
@@ -131,7 +131,7 @@ class WallStreetCNSource(BaseSource):
         articles = []
         for item in data.get("data", {}).get("items", []):
             pub_date = datetime.fromtimestamp(
-                item.get("display_time", 0), tz=timezone.utc
+                item.get("display_time", 0), tz=CST
             )
             if pub_date < cutoff:
                 continue

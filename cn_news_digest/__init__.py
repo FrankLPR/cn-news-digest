@@ -2,7 +2,7 @@
 
 __version__ = "0.1.0"
 
-from cn_news_digest.models import Article
+from cn_news_digest.models import Article, CST
 from cn_news_digest.sources import ALL_SOURCES
 from cn_news_digest.filter import filter_articles
 from cn_news_digest.aggregator import aggregate
@@ -11,6 +11,7 @@ from cn_news_digest.cli import fetch_all
 
 __all__ = [
     "Article",
+    "CST",
     "ALL_SOURCES",
     "fetch_all",
     "filter_articles",

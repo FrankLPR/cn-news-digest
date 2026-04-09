@@ -4,8 +4,11 @@ import pytest
 import httpx
 import respx
 from cn_news_digest.sources.wallstreetcn import WallStreetCNSource
+from tests.conftest import rss_date
 
-SAMPLE_RSS = """<?xml version="1.0" encoding="UTF-8"?>
+
+def _make_sample_rss():
+    return f"""<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0">
 <channel>
   <title>华尔街见闻 - 热门文章</title>
@@ -13,16 +16,17 @@ SAMPLE_RSS = """<?xml version="1.0" encoding="UTF-8"?>
     <title>美联储维持利率不变，鲍威尔暗示年内降息</title>
     <link>https://wallstreetcn.com/articles/123</link>
     <description>美联储周三宣布维持联邦基金利率在5.25%-5.50%区间不变，但鲍威尔在新闻发布会上暗示今年可能降息。市场反应积极，美股三大指数集体收涨。</description>
-    <pubDate>Mon, 07 Apr 2026 10:00:00 GMT</pubDate>
+    <pubDate>{rss_date(2)}</pubDate>
   </item>
   <item>
     <title>原油价格大幅下跌，布伦特跌破70美元</title>
     <link>https://wallstreetcn.com/articles/124</link>
     <description>国际油价周三大幅下跌，布伦特原油期货跌破70美元/桶关口。</description>
-    <pubDate>Mon, 07 Apr 2026 06:00:00 GMT</pubDate>
+    <pubDate>{rss_date(4)}</pubDate>
   </item>
 </channel>
 </rss>"""
+
 
 SAMPLE_API_RESPONSE = {
     "code": 20000,
@@ -68,7 +72,7 @@ SAMPLE_LIVES_RESPONSE = {
 @pytest.mark.asyncio
 async def test_fetch_via_rsshub():
     respx.get("https://rsshub.app/wallstreetcn/hot/day").mock(
-        return_value=httpx.Response(200, text=SAMPLE_RSS)
+        return_value=httpx.Response(200, text=_make_sample_rss())
     )
     source = WallStreetCNSource()
     articles = await source.fetch(hours=24, top_n=15)

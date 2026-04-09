@@ -5,7 +5,7 @@ from datetime import datetime, timezone, timedelta
 
 import httpx
 
-from cn_news_digest.models import Article
+from cn_news_digest.models import Article, CST
 from cn_news_digest.sources.base import BaseSource
 
 # Tencent News hot ranking API (general hot list, investment filter applied later)
@@ -43,7 +43,7 @@ class TencentFinanceSource(BaseSource):
         except (httpx.HTTPError, httpx.TimeoutException, ValueError):
             return []
 
-        cutoff = datetime.now(timezone.utc) - timedelta(hours=hours)
+        cutoff = datetime.now(CST) - timedelta(hours=hours)
         articles = []
 
         # Response: {"ret": 0, "idlist": [{"newslist": [...]}]}
@@ -75,7 +75,7 @@ class TencentFinanceSource(BaseSource):
                     summary=self._clean_html(item.get("abstract", "")),
                     url=item.get("surl") or item.get("url", ""),
                     source=self.name,
-                    published_at=pub_date or datetime.now(timezone.utc),
+                    published_at=pub_date or datetime.now(CST),
                     metrics=metrics,
                     tags=[],
                 )
@@ -90,7 +90,7 @@ class TencentFinanceSource(BaseSource):
             return None
         try:
             naive = datetime.strptime(time_str, "%Y-%m-%d %H:%M:%S")
-            return naive.replace(tzinfo=timezone(timedelta(hours=8)))
+            return naive.replace(tzinfo=CST)
         except ValueError:
             return None
 

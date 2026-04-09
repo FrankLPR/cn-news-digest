@@ -6,7 +6,7 @@ from email.utils import parsedate_to_datetime
 
 import httpx
 
-from cn_news_digest.models import Article
+from cn_news_digest.models import Article, CST
 from cn_news_digest.rsshub import RSSHubClient
 from cn_news_digest.sources.base import BaseSource
 
@@ -32,7 +32,7 @@ class SinaFinanceSource(BaseSource):
         if not entries:
             return []
 
-        cutoff = datetime.now(timezone.utc) - timedelta(hours=hours)
+        cutoff = datetime.now(CST) - timedelta(hours=hours)
         articles = []
         for entry in entries:
             pub_date = self._parse_rss_date(entry.get("published", ""))
@@ -44,7 +44,7 @@ class SinaFinanceSource(BaseSource):
                     summary=self._clean_html(entry.get("summary", "")),
                     url=entry.get("link", ""),
                     source=self.name,
-                    published_at=pub_date or datetime.now(timezone.utc),
+                    published_at=pub_date or datetime.now(CST),
                     metrics={},
                     tags=[],
                 )
@@ -68,7 +68,7 @@ class SinaFinanceSource(BaseSource):
         except (httpx.HTTPError, httpx.TimeoutException, ValueError):
             return []
 
-        cutoff = datetime.now(timezone.utc) - timedelta(hours=hours)
+        cutoff = datetime.now(CST) - timedelta(hours=hours)
         articles = []
         result_data = data.get("result", {}).get("data", [])
         for item in result_data:
@@ -83,7 +83,7 @@ class SinaFinanceSource(BaseSource):
                     ),
                     url=item.get("url", ""),
                     source=self.name,
-                    published_at=pub_date or datetime.now(timezone.utc),
+                    published_at=pub_date or datetime.now(CST),
                     metrics={},
                     tags=[],
                 )
@@ -98,12 +98,12 @@ class SinaFinanceSource(BaseSource):
         try:
             # Sina API returns Unix timestamp as string
             ts = int(ctime_str)
-            return datetime.fromtimestamp(ts, tz=timezone.utc)
+            return datetime.fromtimestamp(ts, tz=CST)
         except (ValueError, TypeError):
             # Fallback: try datetime format
             try:
                 naive = datetime.strptime(ctime_str, "%Y-%m-%d %H:%M:%S")
-                return naive.replace(tzinfo=timezone(timedelta(hours=8)))
+                return naive.replace(tzinfo=CST)
             except ValueError:
                 return None
 

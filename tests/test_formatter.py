@@ -1,13 +1,13 @@
 import json
 import pytest
-from datetime import datetime, timezone
-from cn_news_digest.models import Article
+from datetime import datetime, timedelta
+from cn_news_digest.models import Article, CST
 from cn_news_digest.formatter import format_markdown, format_json
 
 
 @pytest.fixture
 def grouped_articles():
-    now = datetime(2026, 4, 7, 14, 0, 0, tzinfo=timezone.utc)
+    now = datetime.now(CST) - timedelta(hours=1)
     return {
         "wallstreetcn": [
             Article(

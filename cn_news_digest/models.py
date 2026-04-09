@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
+
+# Beijing time (UTC+8), used throughout the project
+CST = timezone(timedelta(hours=8))
 
 
 @dataclass

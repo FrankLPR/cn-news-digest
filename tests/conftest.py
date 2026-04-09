@@ -1,12 +1,25 @@
 import pytest
 from datetime import datetime, timezone, timedelta
-from cn_news_digest.models import Article
+from email.utils import format_datetime
+from cn_news_digest.models import Article, CST
+
+
+def rss_date(hours_ago: float = 1) -> str:
+    """Generate an RFC 2822 date string relative to now."""
+    dt = datetime.now(CST) - timedelta(hours=hours_ago)
+    return format_datetime(dt)
+
+
+def cst_time_str(hours_ago: float = 1) -> str:
+    """Generate a 'YYYY-MM-DD HH:MM:SS' string in CST, relative to now."""
+    dt = datetime.now(CST) - timedelta(hours=hours_ago)
+    return dt.strftime("%Y-%m-%d %H:%M:%S")
 
 
 @pytest.fixture
 def sample_articles():
     """A list of sample articles from different sources for testing."""
-    now = datetime.now(timezone.utc)
+    now = datetime.now(CST)
     return [
         Article(
             title="美联储维持利率不变，鲍威尔暗示年内降息",

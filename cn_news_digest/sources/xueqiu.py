@@ -9,7 +9,7 @@ from email.utils import parsedate_to_datetime
 
 import httpx
 
-from cn_news_digest.models import Article
+from cn_news_digest.models import Article, CST
 from cn_news_digest.rsshub import RSSHubClient
 from cn_news_digest.sources.base import BaseSource
 
@@ -57,7 +57,7 @@ class XueqiuSource(BaseSource):
         if not entries:
             return []
 
-        cutoff = datetime.now(timezone.utc) - timedelta(hours=hours)
+        cutoff = datetime.now(CST) - timedelta(hours=hours)
         articles = []
         for entry in entries:
             pub_date = self._parse_rss_date(entry.get("published", ""))
@@ -69,7 +69,7 @@ class XueqiuSource(BaseSource):
                     summary=self._clean_html(entry.get("summary", "")),
                     url=entry.get("link", ""),
                     source=self.name,
-                    published_at=pub_date or datetime.now(timezone.utc),
+                    published_at=pub_date or datetime.now(CST),
                     metrics={},
                     tags=[],
                 )
@@ -134,7 +134,7 @@ class XueqiuSource(BaseSource):
             # Use real timestamp if available (milliseconds epoch)
             created_at_ms = item.get("created_at", 0)
             if created_at_ms:
-                published_at = datetime.fromtimestamp(created_at_ms / 1000, tz=timezone.utc)
+                published_at = datetime.fromtimestamp(created_at_ms / 1000, tz=CST)
             else:
                 published_at = datetime.min.replace(tzinfo=timezone.utc)
             articles.append(
@@ -182,9 +182,9 @@ class XueqiuSource(BaseSource):
         # Parse timestamp (milliseconds since epoch)
         created_at_ms = item.get("created_at", 0)
         if created_at_ms:
-            published_at = datetime.fromtimestamp(created_at_ms / 1000, tz=timezone.utc)
+            published_at = datetime.fromtimestamp(created_at_ms / 1000, tz=CST)
         else:
-            published_at = datetime.now(timezone.utc)
+            published_at = datetime.now(CST)
 
         metrics = {}
         for key in ("reply_count", "retweet_count", "like_count", "fav_count"):

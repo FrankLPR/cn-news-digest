@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from datetime import datetime, timezone
 
-from cn_news_digest.models import Article
+from cn_news_digest.models import Article, CST
 
 SOURCE_DISPLAY_NAMES = {
     "wallstreetcn": "华尔街见闻",
@@ -18,7 +18,7 @@ SOURCE_ORDER = ["wallstreetcn", "sina", "xueqiu", "tencent"]
 
 def format_markdown(grouped: dict[str, list[Article]]) -> str:
     """Format grouped articles as human-readable Markdown."""
-    now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    now = datetime.now(CST).strftime("%Y-%m-%d %H:%M CST")
     total = sum(len(articles) for articles in grouped.values())
 
     if total == 0:
@@ -40,7 +40,7 @@ def format_markdown(grouped: dict[str, list[Article]]) -> str:
 
         for i, article in enumerate(articles, 1):
             metrics_str = _format_metrics(article.metrics)
-            time_str = article.published_at.strftime("%H:%M")
+            time_str = article.published_at.astimezone(CST).strftime("%H:%M")
             lines.append(
                 f"{i}. **{article.title}** — {article.summary}"
             )
@@ -68,7 +68,7 @@ def format_json(
         }
 
     data = {
-        "fetched_at": datetime.now(timezone.utc).isoformat(),
+        "fetched_at": datetime.now(CST).isoformat(),
         "hours": hours,
         "keywords": keywords,
         "total_count": sum(len(a) for a in grouped.values()),
